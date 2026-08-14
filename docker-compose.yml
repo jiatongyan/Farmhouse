@@ -1,0 +1,48 @@
+services:
+  nacos:
+    image: nacos/nacos-server:v2.5.0
+    container_name: farmhouse-nacos
+    environment:
+      - MODE=standalone
+      - NACOS_AUTH_ENABLE=false
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: farmhouse-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=farmhouse
+      - TZ=Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: farmhouse-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: farmhouse-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

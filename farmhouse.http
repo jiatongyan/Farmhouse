@@ -1,0 +1,37 @@
+# 农家乐平台接口测试文件（IDEA 内置 HTTP Client）
+# 用法：先启动 docker 中间件 + farmhouse-user + farmhouse-gateway，
+#       然后点每个请求左侧的绿色 ▶ 运行。从上往下执行：注册 -> 登录 -> 查信息。
+
+@host = http://localhost:8080
+
+### 1. 注册用户
+POST {{host}}/api/user/register
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "123456",
+  "phone": "13800138000",
+  "nickname": "爱丽丝"
+}
+
+### 2. 登录（成功后自动把 token 存到全局变量，供后续请求使用）
+POST {{host}}/api/user/login
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "123456"
+}
+
+> {%
+    client.global.set("token", response.body.data.token);
+    client.log("已保存 token: " + response.body.data.token);
+%}
+
+### 3. 查询当前用户信息（自动带上 token）
+GET {{host}}/api/user/info
+Authorization: Bearer {{token}}
+
+### 4. 不带 token 访问（验证网关鉴权是否生效，预期返回 401）
+GET {{host}}/api/user/info
