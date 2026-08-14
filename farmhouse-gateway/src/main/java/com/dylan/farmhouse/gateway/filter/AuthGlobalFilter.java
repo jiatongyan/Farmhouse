@@ -33,17 +33,22 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private final ObjectMapper objectMapper;
 
-    /** 白名单：无需鉴权即可访问 */
+    /** 白名单：无需鉴权即可访问（精确匹配） */
     private static final List<String> WHITE_LIST = List.of(
             "/api/user/login",
             "/api/user/register"
+    );
+
+    /** 公开前缀：无需鉴权即可访问（前缀匹配），如服务列表/详情等游客可读接口 */
+    private static final List<String> WHITE_PREFIXES = List.of(
+            "/api/product/"
     );
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
-        if (WHITE_LIST.contains(path)) {
+        if (isWhite(path)) {
             return chain.filter(exchange);
         }
 
@@ -52,6 +57,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return unauthorized(exchange, "未登录或登录已过期");
         }
 
+        /**
+         * 令牌校验
+         */
         Claims claims;
         try {
             claims = JwtUtil.parseToken(auth.substring(7));
@@ -67,6 +75,13 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 .build();
 
         return chain.filter(exchange.mutate().request(mutatedRequest).build());
+    }
+
+    private boolean isWhite(String path) {
+        if (WHITE_LIST.contains(path)) {
+            return true;
+        }
+        return WHITE_PREFIXES.stream().anyMatch(path::startsWith);
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {

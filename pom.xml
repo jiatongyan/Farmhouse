@@ -20,6 +20,7 @@
     <modules>
         <module>farmhouse-common</module>
         <module>farmhouse-user</module>
+        <module>farmhouse-product</module>
         <module>farmhouse-gateway</module>
     </modules>
 
