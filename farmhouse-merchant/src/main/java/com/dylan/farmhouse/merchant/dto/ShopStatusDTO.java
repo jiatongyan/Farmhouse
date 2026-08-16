@@ -1,4 +1,4 @@
-package com.dylan.farmhouse.product.dto;
+package com.dylan.farmhouse.merchant.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

@@ -32,9 +32,6 @@ public class Product {
 
     private String coverUrl;
 
-    /** 剩余库存（临时放在服务表，后续由库存模块接管） */
-    private Integer stock;
-
     /** 状态：0 草稿，1 已上架，2 已下架 */
     private Integer status;
 

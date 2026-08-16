@@ -14,10 +14,14 @@ spring:
           uri: lb://farmhouse-user
           predicates:
             - Path=/api/user/**
+        - id: farmhouse-merchant
+          uri: lb://farmhouse-merchant
+          predicates:
+            - Path=/api/merchant/shop/**
         - id: farmhouse-product
           uri: lb://farmhouse-product
           predicates:
-            - Path=/api/product/**,/api/merchant/**
+            - Path=/api/product/**,/api/merchant/product/**
       globalcors:
         cors-configurations:
           '[/**]':

@@ -1,4 +1,4 @@
-package com.dylan.farmhouse.product.vo;
+package com.dylan.farmhouse.merchant.vo;
 
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +18,11 @@ public class MerchantVO {
 
     private Integer status;
 
+    private Integer auditStatus;
+
     private String description;
+
+    private String contactPhone;
+
+    private String address;
 }

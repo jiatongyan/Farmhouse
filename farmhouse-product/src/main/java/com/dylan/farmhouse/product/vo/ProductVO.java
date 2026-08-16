@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 服务信息（含店铺名称与店铺状态）。
+ * 服务信息（shopName/shopStatus 由 product 服务调用 merchant 服务补充）。
  */
 @Data
 public class ProductVO {
@@ -25,8 +25,6 @@ public class ProductVO {
     private BigDecimal price;
 
     private String coverUrl;
-
-    private Integer stock;
 
     private Integer status;
 

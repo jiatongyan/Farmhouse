@@ -17,13 +17,16 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 -- 商户/店铺表
 CREATE TABLE IF NOT EXISTS `merchant` (
-    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `user_id`     bigint       NOT NULL COMMENT '关联用户ID',
-    `shop_name`   varchar(100) DEFAULT NULL COMMENT '店铺名称',
-    `status`      tinyint      NOT NULL DEFAULT '1' COMMENT '1营业中 2休息中 3关闭',
-    `description` varchar(500) DEFAULT NULL COMMENT '店铺描述',
-    `created_at`  datetime     DEFAULT NULL COMMENT '创建时间',
-    `updated_at`  datetime     DEFAULT NULL COMMENT '更新时间',
+    `id`            bigint       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `user_id`       bigint       NOT NULL COMMENT '关联用户ID',
+    `shop_name`     varchar(100) DEFAULT NULL COMMENT '店铺名称',
+    `status`        tinyint      NOT NULL DEFAULT '1' COMMENT '1营业中 2休息中 3关闭',
+    `audit_status`  tinyint      NOT NULL DEFAULT '0' COMMENT '0待审核 1通过 2拒绝',
+    `description`   varchar(500) DEFAULT NULL COMMENT '店铺描述',
+    `contact_phone` varchar(20)  DEFAULT NULL COMMENT '联系电话',
+    `address`       varchar(255) DEFAULT NULL COMMENT '店铺地址',
+    `created_at`    datetime     DEFAULT NULL COMMENT '创建时间',
+    `updated_at`    datetime     DEFAULT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_id` (`user_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '商户店铺表';
@@ -38,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `product` (
     `description` text           COMMENT '服务描述',
     `price`       decimal(10, 2) NOT NULL COMMENT '价格',
     `cover_url`   varchar(255)   DEFAULT NULL COMMENT '封面图',
-    `stock`       int            NOT NULL DEFAULT '0' COMMENT '剩余库存(临时，后续库存模块接管)',
     `status`      tinyint        NOT NULL DEFAULT '0' COMMENT '0草稿 1已上架 2已下架',
     `created_at`  datetime       DEFAULT NULL COMMENT '创建时间',
     `updated_at`  datetime       DEFAULT NULL COMMENT '更新时间',

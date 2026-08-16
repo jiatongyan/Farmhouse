@@ -9,9 +9,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farmhouse-product</artifactId>
-    <name>farmhouse-product</name>
-    <description>产品服务：服务发布、上下架、列表、详情、店铺状态</description>
+    <artifactId>farmhouse-merchant</artifactId>
+    <name>farmhouse-merchant</name>
+    <description>商户服务：店铺管理、营业状态、店铺审核</description>
 
     <dependencies>
         <dependency>
@@ -33,25 +33,10 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
-        <!-- 3.5.9+ 分页插件已拆分，需单独引入 jsqlparser -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-jsqlparser</artifactId>
-            <version>${mybatis-plus.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
         <dependency>

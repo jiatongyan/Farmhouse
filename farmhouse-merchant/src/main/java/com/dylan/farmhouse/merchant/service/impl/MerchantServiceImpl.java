@@ -1,15 +1,16 @@
-package com.dylan.farmhouse.product.service.impl;
+package com.dylan.farmhouse.merchant.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.dylan.farmhouse.product.entity.Merchant;
-import com.dylan.farmhouse.product.mapper.MerchantMapper;
-import com.dylan.farmhouse.product.service.MerchantService;
-import com.dylan.farmhouse.product.vo.MerchantVO;
+import com.dylan.farmhouse.merchant.entity.Merchant;
+import com.dylan.farmhouse.merchant.mapper.MerchantMapper;
+import com.dylan.farmhouse.merchant.service.MerchantService;
+import com.dylan.farmhouse.merchant.vo.MerchantVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,14 @@ public class MerchantServiceImpl implements MerchantService {
         return getOrCreate(userId).getId();
     }
 
+    @Override
+    public List<MerchantVO> listByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return merchantMapper.selectBatchIds(ids).stream().map(this::toVO).toList();
+    }
+
     private Merchant getOrCreate(Long userId) {
         Merchant merchant = merchantMapper.selectOne(
                 new LambdaQueryWrapper<Merchant>().eq(Merchant::getUserId, userId));
@@ -47,6 +56,7 @@ public class MerchantServiceImpl implements MerchantService {
         toInsert.setUserId(userId);
         toInsert.setShopName("默认店铺");
         toInsert.setStatus(1);
+        toInsert.setAuditStatus(1); // 演示环境默认审核通过
         toInsert.setDescription("");
         toInsert.setCreatedAt(LocalDateTime.now());
         toInsert.setUpdatedAt(LocalDateTime.now());
@@ -54,7 +64,7 @@ public class MerchantServiceImpl implements MerchantService {
             merchantMapper.insert(toInsert);
             return toInsert;
         } catch (DuplicateKeyException e) {
-            // 并发下唯一约束兜底，重查一次
+            // 并发下唯一约束兜底，重查
             return merchantMapper.selectOne(
                     new LambdaQueryWrapper<Merchant>().eq(Merchant::getUserId, userId));
         }
@@ -66,7 +76,10 @@ public class MerchantServiceImpl implements MerchantService {
                 .userId(merchant.getUserId())
                 .shopName(merchant.getShopName())
                 .status(merchant.getStatus())
+                .auditStatus(merchant.getAuditStatus())
                 .description(merchant.getDescription())
+                .contactPhone(merchant.getContactPhone())
+                .address(merchant.getAddress())
                 .build();
     }
 }

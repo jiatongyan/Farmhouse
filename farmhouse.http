@@ -1,10 +1,22 @@
+# ============================================================
 # 农家乐平台接口测试文件（IDEA 内置 HTTP Client）
-# 用法：先启动 docker 中间件 + farmhouse-user + farmhouse-gateway，
-#       然后点每个请求左侧的绿色 ▶ 运行。从上往下执行：注册 -> 登录 -> 查信息。
+#
+# 前置条件：
+#   1. 中间件已启动：docker compose up -d（nacos/mysql/redis/rabbitmq）
+#   2. 已启动 4 个服务：
+#      farmhouse-user(8081) / farmhouse-merchant(8083)
+#      farmhouse-product(8082) / farmhouse-gateway(8080)
+#   3. 所有请求统一走网关 8080
+#
+# 使用：从上往下点绿色 ▶ 执行，登录后响应脚本会自动保存 token，
+#       后续请求通过 {{token}} / {{merchantToken}} / {{productId}} 引用。
+# ============================================================
 
 @host = http://localhost:8080
 
-### 1. 注册用户
+# ============ 一、消费者链路 ============
+
+### 1. 注册消费者
 POST {{host}}/api/user/register
 Content-Type: application/json
 
@@ -15,7 +27,7 @@ Content-Type: application/json
   "nickname": "爱丽丝"
 }
 
-### 2. 登录（成功后自动把 token 存到全局变量，供后续请求使用）
+### 2. 消费者登录（自动保存 token）
 POST {{host}}/api/user/login
 Content-Type: application/json
 
@@ -26,19 +38,19 @@ Content-Type: application/json
 
 > {%
     client.global.set("token", response.body.data.token);
-    client.log("已保存 token: " + response.body.data.token);
+    client.log("消费者 token 已保存");
 %}
 
-### 3. 查询当前用户信息（自动带上 token）
+### 3. 查询消费者信息（带 token，预期返回用户信息）
 GET {{host}}/api/user/info
 Authorization: Bearer {{token}}
 
-### 4. 不带 token 访问（验证网关鉴权是否生效，预期返回 401）
+### 4. 不带 token 访问（验证鉴权，预期 401）
 GET {{host}}/api/user/info
 
-# ============ 产品模块（商户端 + 消费者端） ============
+# ============ 二、商户链路 ============
 
-### 5. 注册商户账号（role=1）
+### 5. 注册商户（role=1）
 POST {{host}}/api/user/register
 Content-Type: application/json
 
@@ -50,7 +62,7 @@ Content-Type: application/json
   "role": 1
 }
 
-### 6. 商户登录（自动存商户 token）
+### 6. 商户登录（自动保存商户 token）
 POST {{host}}/api/user/login
 Content-Type: application/json
 
@@ -61,14 +73,14 @@ Content-Type: application/json
 
 > {%
     client.global.set("merchantToken", response.body.data.token);
-    client.log("已保存商户 token: " + response.body.data.token);
+    client.log("商户 token 已保存");
 %}
 
-### 7. 查看我的店铺（首次调用会自动创建默认店铺）
+### 7. 查看我的店铺（首次调用自动创建默认店铺）
 GET {{host}}/api/merchant/shop
 Authorization: Bearer {{merchantToken}}
 
-### 8. 设置店铺状态（1营业中 2休息中 3关闭）
+### 8. 设置店铺状态为营业中（1营业中 2休息中 3关闭）
 PUT {{host}}/api/merchant/shop/status
 Content-Type: application/json
 Authorization: Bearer {{merchantToken}}
@@ -77,7 +89,7 @@ Authorization: Bearer {{merchantToken}}
   "status": 1
 }
 
-### 9. 发布服务（status 传 1 直接上架）
+### 9. 发布服务（status=1 直接上架，自动保存 productId）
 POST {{host}}/api/merchant/product
 Content-Type: application/json
 Authorization: Bearer {{merchantToken}}
@@ -89,16 +101,57 @@ Authorization: Bearer {{merchantToken}}
   "price": 688.00,
   "categoryId": 1,
   "coverUrl": "https://example.com/cover.jpg",
-  "stock": 100,
   "status": 1
 }
 
-### 10. 服务列表（游客可访问，无需 token）
+> {%
+    client.global.set("productId", response.body.data);
+    client.log("已保存 productId: " + response.body.data);
+%}
+
+### 10. 编辑服务（改价格为 888）
+PUT {{host}}/api/merchant/product/{{productId}}
+Content-Type: application/json
+Authorization: Bearer {{merchantToken}}
+
+{
+  "title": "农家乐烤全羊套餐",
+  "subtitle": "含住宿一晚",
+  "description": "特色烤全羊，含果园采摘",
+  "price": 888.00,
+  "categoryId": 1,
+  "coverUrl": "https://example.com/cover.jpg",
+  "status": 1
+}
+
+### 11. 下架服务（status=2）
+PUT {{host}}/api/merchant/product/{{productId}}/status
+Content-Type: application/json
+Authorization: Bearer {{merchantToken}}
+
+{
+  "status": 2
+}
+
+### 12. 重新上架服务（status=1）
+PUT {{host}}/api/merchant/product/{{productId}}/status
+Content-Type: application/json
+Authorization: Bearer {{merchantToken}}
+
+{
+  "status": 1
+}
+
+# ============ 三、消费者浏览服务 ============
+
+### 13. 服务列表（公开，含店铺名，验证 Feign 调用 merchant 服务）
 GET {{host}}/api/product/list?page=1&size=10
 
-### 11. 服务详情（游客可访问，id 换成第 9 步发布返回的 id）
-GET {{host}}/api/product/1
+### 14. 服务详情（公开，含 shopName/shopStatus）
+GET {{host}}/api/product/{{productId}}
 
-### 12. 用消费者 token 访问商户接口（验证角色鉴权，预期 403）
+# ============ 四、权限验证 ============
+
+### 15. 用消费者 token 访问商户接口（预期 403 无权限）
 GET {{host}}/api/merchant/shop
 Authorization: Bearer {{token}}
