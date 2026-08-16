@@ -90,7 +90,7 @@ Authorization: Bearer {{merchantToken}}
 }
 
 ### 9. 发布服务（status=1 直接上架，自动保存 productId）
-POST {{host}}/api/merchant/product
+POST {{host}}/api/product/manage
 Content-Type: application/json
 Authorization: Bearer {{merchantToken}}
 
@@ -110,7 +110,7 @@ Authorization: Bearer {{merchantToken}}
 %}
 
 ### 10. 编辑服务（改价格为 888）
-PUT {{host}}/api/merchant/product/{{productId}}
+PUT {{host}}/api/product/manage/{{productId}}
 Content-Type: application/json
 Authorization: Bearer {{merchantToken}}
 
@@ -125,7 +125,7 @@ Authorization: Bearer {{merchantToken}}
 }
 
 ### 11. 下架服务（status=2）
-PUT {{host}}/api/merchant/product/{{productId}}/status
+PUT {{host}}/api/product/manage/{{productId}}/status
 Content-Type: application/json
 Authorization: Bearer {{merchantToken}}
 
@@ -134,7 +134,7 @@ Authorization: Bearer {{merchantToken}}
 }
 
 ### 12. 重新上架服务（status=1）
-PUT {{host}}/api/merchant/product/{{productId}}/status
+PUT {{host}}/api/product/manage/{{productId}}/status
 Content-Type: application/json
 Authorization: Bearer {{merchantToken}}
 

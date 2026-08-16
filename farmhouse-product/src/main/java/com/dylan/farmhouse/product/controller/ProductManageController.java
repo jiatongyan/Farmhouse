@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 商户端服务管理接口：发布/编辑/上下架。
- * 身份由网关鉴权后通过 X-User-Id / X-User-Role 透传，这里校验必须为商户(role=1)。
+ * 路径归属 product 服务，POST/PUT 需网关鉴权；身份经网关透传 X-User-Id / X-User-Role，这里校验必须为商户(role=1)。
  */
 @RestController
-@RequestMapping("/api/merchant/product")
+@RequestMapping("/api/product/manage")
 @RequiredArgsConstructor
 public class ProductManageController {
 

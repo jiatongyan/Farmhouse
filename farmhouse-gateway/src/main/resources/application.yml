@@ -17,11 +17,11 @@ spring:
         - id: farmhouse-merchant
           uri: lb://farmhouse-merchant
           predicates:
-            - Path=/api/merchant/shop/**
+            - Path=/api/merchant/**
         - id: farmhouse-product
           uri: lb://farmhouse-product
           predicates:
-            - Path=/api/product/**,/api/merchant/product/**
+            - Path=/api/product/**
       globalcors:
         cors-configurations:
           '[/**]':
