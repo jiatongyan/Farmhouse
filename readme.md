@@ -975,7 +975,7 @@ ElasticSearch
 2. **无分布式锁防超卖**：数据库条件 UPDATE + InnoDB 行锁，实现高并发库存扣减。
 3. **最终一致性架构**：本地事务 + RabbitMQ 补偿，替代 Seata，降低系统复杂度。
 4. **可靠消息体系**：Confirm、持久化、Ack、DLQ、幂等消费完整闭环。
-5. **企业级微服务治理**：Gateway、Nacos、Sentinel、Redis、RabbitMQ、SkyWalking、Prometheus、Grafana 全链路覆盖。 。
+5. **企业级微服务治理**：Gateway、Nacos、Sentinel、Redis、RabbitMQ、SkyWalking、Prometheus、Grafana 全链路覆盖。
 6. **高并发可扩展**：支持多实例部署、限流熔断、缓存热点、异步解耦，为秒级高并发预约场景预留演进空间。
 
 ---
